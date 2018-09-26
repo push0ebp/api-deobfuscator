@@ -14,10 +14,15 @@ Enjoy.
 `call dword ptr fs:[000000C0]`
 
 ## Features
+### before
 ![Startup before](https://raw.githubusercontent.com/push0ebp/api-deobfuscator/master/images/startup_before.png)
+### after
 ![Startup after](https://raw.githubusercontent.com/push0ebp/api-deobfuscator/master/images/startup_after.png)
 
+### before
 ![JmpTable before](https://raw.githubusercontent.com/push0ebp/api-deobfuscator/master/images/jmptable_before.png)
+
+### after
 ![JmpTable after](https://raw.githubusercontent.com/push0ebp/api-deobfuscator/master/images/jmptable_after.png)
 
 
