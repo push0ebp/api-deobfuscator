@@ -94,5 +94,5 @@ local baseOfCode = readInteger(peHeader + 0x2c)
 local from = base + baseOfCode -- modify base of your module code
 local size = sizeOfCode -- modify size of code
 local to = from + size
--- fixs(from, to)
+fixs(from, to)
 print(string.format("From %x To %x", from, to))
