@@ -10,15 +10,18 @@ function getDestAddr(addr, jmp)
   local destAddr = nil
   if (jmp and string.match(opcode, '^j%a+%s+')) or
     string.find(opcode, "call") then
-    local addr = string.match(opcode, '%s+(%x+)$')
+    local addr = string.match(opcode, '%s+%[?(%x+)%]?$')
     if addr then
       destAddr = tonumber(addr, 16)
+      if string.find(opcode, 'word ptr') then
+         destAddr = readPointer(addr)
+      end
     end
   end
   return destAddr
 end
 
-  
+
 function follows(addr)
   local CNT = 0x300
   local pc = addr
@@ -26,7 +29,7 @@ function follows(addr)
     local destAddr = getDestAddr(pc, true)
     if destAddr then
       pc = destAddr
-    else 
+    else
       pc = pc + getInstructionSize(pc)
     end
     if inSystemModule(pc) then
@@ -54,12 +57,12 @@ function fix_api(addr)
     local scriptStr = [==[
         %x:
         %s
-    ]==]  
+    ]==]
     local address, opcode = disas(addr)
     local ins = string.match(opcode, '^%a+%s+')
-    local insStr = string.format("%s %x", ins, apiAddr)  
+    local insStr = string.format("%s %x", ins, apiAddr)
     scriptStr = string.format(scriptStr, addr, insStr)
-    autoAssemble(scriptStr) 
+    autoAssemble(scriptStr)
   end
   return apiAddr
 end
@@ -71,7 +74,7 @@ function fixs(from, to)
     local destAddr = getDestAddr(pc, true)
     if destAddr and getAddressSafe(destAddr) and not inModule(destAddr) then
       local apiAddr = fix_api(pc)
-      if apiAddr then 
+      if apiAddr then
         cnt = cnt + 1
         print(string.format("(%d) %x[%s] - %s", cnt, pc, getNameFromAddress(pc), getNameFromAddress(apiAddr)))
       end
@@ -82,8 +85,14 @@ function fixs(from, to)
   return pc
 end
 
-local from = getAddress("PROCESS NAME") + 0x1000 -- modify base of your module code 
-local size = 0x30000 -- modify size of code
+local base = getAddress("PROCESS NAME")
+
+local lfanew = readInteger(base + 0x3C)
+local peHeader = base + lfanew
+local sizeOfCode = readInteger(peHeader + 0x1c)
+local baseOfCode = readInteger(peHeader + 0x2c)
+local from = base + baseOfCode -- modify base of your module code
+local size = sizeOfCode -- modify size of code
 local to = from + size
-fixs(from, to)
+-- fixs(from, to)
 print(string.format("From %x To %x", from, to))
