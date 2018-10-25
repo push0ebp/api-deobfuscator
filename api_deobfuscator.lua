@@ -69,23 +69,27 @@ end
 
 function fixs(from, to)
   local pc = from
+  local allCnt = 0
   local cnt = 0
   while pc < to do
     local destAddr = getDestAddr(pc, true)
     if destAddr and getAddressSafe(destAddr) and not inModule(destAddr) then
       local apiAddr = fix_api(pc)
+      allCnt = allCnt + 1
       if apiAddr then
         cnt = cnt + 1
         print(string.format("(%d) %x[%s] - %s", cnt, pc, getNameFromAddress(pc), getNameFromAddress(apiAddr)))
+      else
+        print(string.format("(%d) failed %x[%s]", allCnt, pc, getNameFromAddress(pc)))
       end
     end
     pc = pc + getInstructionSize(pc)
   end
   print("Finished")
-  return pc
+  return cnt, allCnt
 end
 
-local base = getAddress("PROCESS NAME")
+local base = getAddress("MagicLineNPIZ.exe")
 
 local lfanew = readInteger(base + 0x3C)
 local peHeader = base + lfanew
@@ -94,5 +98,7 @@ local baseOfCode = readInteger(peHeader + 0x2c)
 local from = base + baseOfCode -- modify base of your module code
 local size = sizeOfCode -- modify size of code
 local to = from + size
-fixs(from, to)
+local cnt, allCnt = fixs(from, to)
+print(string.format("Success %d Fail %d All %d", cnt, allCnt - cnt, allCnt))
 print(string.format("From %x To %x", from, to))
+
