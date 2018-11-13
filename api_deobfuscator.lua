@@ -89,7 +89,7 @@ function fixs(from, to)
   return cnt, allCnt
 end
 
-local base = getAddress("MagicLineNPIZ.exe")
+local base = getAddress("PROCESS NAME")
 
 local lfanew = readInteger(base + 0x3C)
 local peHeader = base + lfanew
