@@ -9,7 +9,7 @@ function getDestAddr(addr, jmp)
   local address, opcode = disas(addr)
   local destAddr = nil
   if (jmp and string.match(opcode, '^j%a+%s+')) or
-    string.find(opcode, "call") then
+    (string.find(opcode, "call") and not string.find(opcode, " ptr"))then
     local addr = string.match(opcode, '%s+%[?(%x+)%]?$')
     if addr then
       destAddr = tonumber(addr, 16)
